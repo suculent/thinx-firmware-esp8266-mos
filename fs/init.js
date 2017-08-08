@@ -10,18 +10,32 @@ let thx = JSON.parse(File.read('conf5.json'));
 ///
 
 // can it LET?
-let thx_connected_response = { status: "connected" };
-let thx_disconnected_response = { status: "disconnected" };
-let thx_reboot_response = { status : "rebooting" };
-let thx_update_question =
-  { title: "Update Available", body: "There is an update available for this device. Do you want to install it now?", type: "actionable", response_type: "bool" };
-let thx_update_success =
-  { title: "Update Successful", body: "The device has been successfully updated.", type: "success" };
+let thx_connected_response = {
+  status: "connected"
+};
+let thx_disconnected_response = {
+  status: "disconnected"
+};
+let thx_reboot_response = {
+  status: "rebooting"
+};
+let thx_update_question = {
+  title: "Update Available",
+  body: "There is an update available for this device. Do you want to install it now?",
+  type: "actionable",
+  response_type: "bool"
+};
+let thx_update_success = {
+  title: "Update Successful",
+  body: "The device has been successfully updated.",
+  type: "success"
+};
 
 ///
 
 function thinx_device_mac() {
-  return "N0:NM:OC:KE:D1:00"; // todo, replace with real non-mocked MAC 
+  let f = ffi('char * get_mac_address()');
+  return f(); // "N0:NM:OC:KE:D1:00"; // todo, replace with real non-mocked MAC
 }
 
 function registration_json_body() {
@@ -56,12 +70,12 @@ function thinx_register() {
     data: registration_json_body(),
     success: function(body, full_http_msg) {
       print(body);
-      
+
       let json = JSON.parse(body);
       print(JSON.stringify(json));
       let reg = json['registration'];
       if (reg) {
-        
+
         let udid = reg['udid'];
         if (udid) {
           print(JSON.stringify(reg));
@@ -72,7 +86,7 @@ function thinx_register() {
           File.write(data, "conf5.json");
         }
       }
-      
+
     },
     error: function(err) {
       print(err);
@@ -81,7 +95,7 @@ function thinx_register() {
   });
 }
 
-Timer.set(60000 /* 1 sec */, true /* repeat */, function() {
+Timer.set(60000 /* 1 sec */ , true /* repeat */ , function() {
   // Retry registration until UDID given
   //if (thx.THINX_UDID === "") {
   thinx_register();
@@ -89,6 +103,6 @@ Timer.set(60000 /* 1 sec */, true /* repeat */, function() {
 }, null);
 
 
-Timer.set(15000 /* 1 sec */, true /* repeat */, function() {
+Timer.set(15000 /* 1 sec */ , true /* repeat */ , function() {
   thinx_register();
 }, null);
