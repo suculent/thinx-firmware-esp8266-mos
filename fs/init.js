@@ -37,16 +37,12 @@ let thx_update_success = {
 ///
 
 function thinx_device_mac() {
-  return "FA:KE:BU:TG:00:D0";
-
-  /* Returns <???-562948879850768> or crashes
-  print("Getting mac address...");
+  return thx.MAC; // rest crashes, MAC is hardcoded until someone helps
+  print("Gettinc MAC address...");
   let get_mac_address = ffi('char * get_mac_address()');
-  print("MAC: ");
-  let result = get_mac_address();
-  print(result);
-  return result;
-  */
+  let mac_str = get_mac_address();
+  print(mac_str);
+  return mac_str;
 }
 
 function registration_json_body() {
@@ -131,6 +127,7 @@ function thinx_register() {
           print(reg.udid);
           let data = JSON.stringify(thx);
           File.write(data, "conf5.json");
+          // Sys.reboot();
         }
       }
 
@@ -160,6 +157,8 @@ Net.setStatusEventHandler(function(ev, arg) {
   print("== Net event:", ev, evs);
 }, null);
 
-
+// FFI example that simply works
+// let f = ffi('void foo(int)');
+// f(1234);
 
 ///
