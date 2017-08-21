@@ -136,26 +136,23 @@ Net.setStatusEventHandler(function(ev, arg) {
     evs = "CONNECTED";
   } else if (ev === Net.STATUS_GOT_IP) {
     evs = "GOT_IP";
-    // Get MAC and register with THiNX
 
+    // Get MAC and register with THiNX
     let rpc_local = " " + Cfg.get("device.id");
-    print("Device ID: " + rpc_local.slice(7, 13));
 
     let esp32 = rpc_local.slice(1, 7);
     if (esp32 === "esp32_") {
-      print("ESP32 Detected...");
-      print(esp32);
       thx.MAC = "5ECF7F" + rpc_local.slice(7, 13); // esp32_
     }
 
     let esp8266 = rpc_local.slice(1, 9);
     if (esp8266 === "esp8266_") {
-      print("ESP8266 Detected...");
-      print(esp8266);
       thx.MAC = "5CCF7F" + rpc_local.slice(9, 15); // esp8266_
     }
 
-    thinx_register(useProxy);
+    if (thx.MAC !== "") {
+      thinx_register(useProxy);
+    }
   }
 }, null);
 
