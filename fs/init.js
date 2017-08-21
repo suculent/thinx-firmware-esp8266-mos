@@ -38,6 +38,17 @@ let thx_update_success = {
 ///
 
 function thinx_device_mac() {
+  let rpc_local = " " + Cfg.get("device.id");
+  thx.MAC = rpc_local; // will be stripped on supported devices
+  let esp32 = rpc_local.slice(1, 7);
+  if (esp32 === "esp32_") {
+    thx.MAC = "5ECF7F" + rpc_local.slice(7, 13); // esp32_
+  }
+  let esp8266 = rpc_local.slice(1, 9);
+  if (esp8266 === "esp8266_") {
+    thx.MAC = "5ECF7F" + rpc_local.slice(9, 15); // esp8266_
+  }
+
   return thx.MAC; // rest crashes, MAC is hardcoded until someone helps
 }
 
@@ -81,7 +92,8 @@ function thinx_register() {
     print("Trying cloud..." + url);
   }
   //207.154.230.212
-  print(JSON.stringify(registration_json_body()))
+  print(JSON.stringify(registration_json_body()));
+
   HTTP.query({
     url: url,
     headers: headers(),
@@ -102,17 +114,56 @@ function thinx_register() {
       let json = JSON.parse(body);
       print(JSON.stringify(json));
       let reg = json.registration;
+      let success = json.registration.success;
+
+      if (!success) {
+        print("Registration failed. Exiting response parser.");
+        return;
+      }
+
       if (reg) {
+
+        // Debug only, will deprecate
+        print(JSON.stringify(reg));
+
         let udid = reg.udid;
         if (udid) {
-          print(JSON.stringify(reg));
           thx.THINX_UDID = udid;
           print("Saving UDID: ");
           print(reg.udid);
-          let data = JSON.stringify(thx);
-          File.write(data, "conf5.json");
-          // Sys.reboot();
         }
+
+        let owner = reg.owner;
+        if (owner) {
+          thx.THINX_OWNER = owner;
+          print("Saving owner: ");
+          print(reg.owner);
+        }
+
+        let alias = reg.alias;
+        if (alias) {
+          thx.THINX_ALIAS = alias;
+          print("Saving alias: ");
+          print(reg.alias);
+        }
+
+        let au = reg.auto_update;
+        if (au) {
+          thx.THINX_AUTO_UPDATE = au;
+          print("Saving THINX_AUTO_UPDATE: ");
+          print(au);
+        }
+
+        let fu = reg.forced_update;
+        if (fu) {
+          thx.THINX_FORCED_UPDATE = fu;
+          print("Saving THINX_FORCED_UPDATE: ");
+          print(fu);
+        }
+
+        let data = JSON.stringify(thx);
+        File.write(data, "conf5.json");
+        // Sys.reboot();
       }
 
     },
@@ -137,22 +188,14 @@ Net.setStatusEventHandler(function(ev, arg) {
   } else if (ev === Net.STATUS_GOT_IP) {
     evs = "GOT_IP";
 
-    // Get MAC and register with THiNX
-    let rpc_local = " " + Cfg.get("device.id");
 
-    let esp32 = rpc_local.slice(1, 7);
-    if (esp32 === "esp32_") {
-      thx.MAC = "5ECF7F" + rpc_local.slice(7, 13); // esp32_
-    }
+    RPC.call(RPC.LOCAL, 'Sys.GetInfo', null, function(resp, ud) {
+      print('Response:', JSON.stringify(resp));
+      print('MAC address:', resp.mac);
+      thx.MAC = resp.mac;
+    }, null);
 
-    let esp8266 = rpc_local.slice(1, 9);
-    if (esp8266 === "esp8266_") {
-      thx.MAC = "5CCF7F" + rpc_local.slice(9, 15); // esp8266_
-    }
-
-    if (thx.MAC !== "") {
-      thinx_register(useProxy);
-    }
+    thinx_register(useProxy);
   }
 }, null);
 
