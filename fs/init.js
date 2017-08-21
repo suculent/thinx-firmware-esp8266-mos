@@ -4,6 +4,7 @@ load("api_http.js");
 load("api_file.js");
 load('api_timer.js');
 load('api_rpc.js');
+load("api_config.js");
 
 let cfg_file = File.read('conf5.json');
 let thx = JSON.parse(cfg_file);
@@ -80,6 +81,7 @@ function thinx_register() {
     print("Trying cloud..." + url);
   }
   //207.154.230.212
+  print(JSON.stringify(registration_json_body()))
   HTTP.query({
     url: url,
     headers: headers(),
@@ -135,11 +137,25 @@ Net.setStatusEventHandler(function(ev, arg) {
   } else if (ev === Net.STATUS_GOT_IP) {
     evs = "GOT_IP";
     // Get MAC and register with THiNX
-    RPC.call(RPC.LOCAL, 'Sys.GetInfo', null, function(resp, ud) {
-      thx.MAC = resp.mac;
-      thinx_register(useProxy);
-    }, null);
 
+    let rpc_local = " " + Cfg.get("device.id");
+    print("Device ID: " + rpc_local.slice(7, 13));
+
+    let esp32 = rpc_local.slice(1, 7);
+    if (esp32 === "esp32_") {
+      print("ESP32 Detected...");
+      print(esp32);
+      thx.MAC = "5ECF7F" + rpc_local.slice(7, 13); // esp32_
+    }
+
+    let esp8266 = rpc_local.slice(1, 9);
+    if (esp8266 === "esp8266_") {
+      print("ESP8266 Detected...");
+      print(esp8266);
+      thx.MAC = "5CCF7F" + rpc_local.slice(9, 15); // esp8266_
+    }
+
+    thinx_register(useProxy);
   }
 }, null);
 
