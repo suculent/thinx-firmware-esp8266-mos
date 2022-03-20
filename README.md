@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is an empty app, serves as a skeleton for building Mongoose OS
+This is an empty Mongoose app, serves as a skeleton for building Mongoose OS
 apps from scratch.
 
 ## How to install this app
