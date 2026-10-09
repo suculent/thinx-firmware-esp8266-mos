@@ -2,9 +2,9 @@ author: mongoose-os
 description: An empty app that does nothing
 version: 1.0
 
-libs_version: ${mos_version}
-modules_version: ${mos_version}
-mongoose_os_version: ${mos_version}
+libs_version: ${mos.version}
+modules_version: ${mos.version}
+mongoose_os_version: ${mos.version}
 
 # Optional. List of tags for online search.
 tags:
@@ -40,5 +40,5 @@ libs:
   - origin: https://github.com/mongoose-os-libs/mjs
   - origin: https://github.com/mongoose-os-libs/wifi
 
-# Used by the mos tool to catch mos binaries incompatible with this file format
-skeleton_version: 2017-05-18
+# Manifest format version; mos refuses to build without it (oldest supported 2017-03-17).
+manifest_version: 2017-09-29
