@@ -1,0 +1,4 @@
+# THiNX build descriptor. The worker refuses to build a repository without this
+# file (builder exits with code 3). The platform is inferred from mos.yml; the
+# explicit key below just states it.
+mongoose: true
